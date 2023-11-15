@@ -1,0 +1,90 @@
+name: 'guardian/action-sbt-release'
+description: 'Run sbt-release command to publish to a signed release to maven'
+
+inputs:
+  isSnapshot:
+    description: "Is this a snapshot (pre-release) version?"
+    type: boolean
+    default: true
+  fetchDepth:
+    description: "How many commits are required to find the tagged version? 0 fetches everything. See docs for actions/checkout"
+    default: 1
+  pgpSecret:
+    description: "base64 encoded PGP secret if neccessary for the SBT release process"
+    default: ''
+    required: false
+  pgpPassphrase:
+    description: "passphrase for the above key"
+    default: ''
+    required: false
+  sonatypeUsername:
+    default: ''
+    required: false
+  sonatypePassword:
+    default: ''
+    required: false
+
+  # domain:
+  #   description: A Guardian-owned domain. [name].gutools.co.uk is recommended.
+  #   required: true
+  # artifact:
+  #   description: 'Name of artifact containing the static site. Should be uploaded in an earlier workflow step.'
+  #   required: false
+  #   default: 'artifact'
+  # guActionsRiffRaffRoleArn:
+  #   description: "Role to use for writing to Riffraff's AWS bucket (typically org secret of same name)."
+  #   required: true
+  # dryRun:
+  #   description: 'If set to true, will not upload Riffraff artifact.'
+  #   default: false
+
+runs:
+  using: 'composite'
+  steps:
+    - uses: actions/checkout@v3
+      with:
+        fetch-tags: true
+        fetch-depth: ${{ inputs.fetchDepth }}
+    - uses: actions/setup-java@v3
+      with:
+        distribution: corretto
+        java-version: 11
+        cache: sbt
+    - name: Get version to publish as
+      shell: bash
+      run: |
+        git describe --tags
+        VERSION=$(git describe --tags | cut -f2 -d"@")
+        if [[ ${VERSION:0:1} == "v" ]] ; then
+          VERSION=${VERSION:1}
+        fi
+        echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+    - name: Optionally set snapshot version
+      if: ${{ inputs.isSnapshot != 'false' }}
+      shell: bash
+      run: |
+        if [[ ${VERSION: -9} != "-SNAPSHOT" ]] ; then
+          echo "Version must end in -SNAPSHOT. Adding -SNAPSHOT suffix"
+          VERSION="$VERSION-SNAPSHOT"
+        fi
+        echo "VERSION=${VERSION}" >> "$GITHUB_ENV"
+    - name: Import PGP key if there is one
+      if: ${{ inputs.pgpSecret != '' }}
+      shell: bash
+      run: "echo $PGP_SECRET | base64 --decode | gpg --batch --import"
+      env:
+        PGP_SECRET: ${{ inputs.pgpSecret }}
+        PGP_PASSPHRASE: ${{ inputs.pgpPassphrase }}
+    - name: Run sbt release
+      shell: bash
+      run: |
+        export GPG_TTY=$(tty)
+        RELEASE_TYPE="${{ inputs.isSnapshot == 'true' && 'snapshot' || 'production' }}"
+        echo "Releasing version $VERSION Sonatype as $RELEASE_TYPE"
+        yes | sbt -DRELEASE_TYPE=$RELEASE_TYPE "clean" "release cross release-version $VERSION with-defaults"
+      env:
+        PGP_PASSPHRASE: ${{ inputs.pgpPassphrase }}
+        SONATYPE_USERNAME: ${{ inputs.sonatypeUsername }}
+        SONATYPE_PASSWORD: ${{ inputs.sonatypePassword }}
+
+
