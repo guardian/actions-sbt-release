@@ -39,8 +39,9 @@ jobs:
     steps:
       - uses: guardian/actions-sbt-release@v1
         with:
-          fetchDepth: 0
           pgpSecret: ${{ secrets.PGP_SECRET }}
           pgpPassphrase: ${{ secrets.PGP_PASSPHRASE }}
+          sonatypeUsername: ${{ secrets.SONATYPE_USERNAME }}
+          sonatypePassword: ${{ secrets.SONATYPE_PASSWORD }}
           isSnapshot: ${{ github.event.release.prerelease }}
 ```
