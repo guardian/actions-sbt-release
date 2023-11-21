@@ -92,7 +92,7 @@ runs:
         export GPG_TTY=$(tty)
         RELEASE_TYPE="${{ inputs.isSnapshot == 'true' && 'snapshot' || 'production' }}"
         echo "Releasing version $VERSION Sonatype as $RELEASE_TYPE"
-        yes | sbt -DRELEASE_TYPE=$RELEASE_TYPE "clean" "release cross release-version $VERSION with-defaults"
+        sbt -DRELEASE_TYPE=$RELEASE_TYPE "clean" "release cross release-version $VERSION with-defaults"
       env:
         PGP_PASSPHRASE: ${{ inputs.pgpPassphrase }}
         SONATYPE_USERNAME: ${{ inputs.sonatypeUsername }}
