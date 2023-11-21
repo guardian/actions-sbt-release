@@ -34,7 +34,6 @@ runs:
   steps:
     - uses: actions/checkout@v3
       with:
-        fetch-tags: true
         fetch-depth: ${{ inputs.fetchDepth }}
     - uses: actions/setup-java@v3
       with:
