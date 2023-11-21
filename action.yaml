@@ -2,6 +2,11 @@ name: 'guardian/action-sbt-release'
 description: 'Run sbt-release command to publish to a signed release to maven'
 
 inputs:
+  version:
+    description: "The version that should be released. If not provided will be taken from the tags"
+    type: string
+    default: ''
+    required: false
   isSnapshot:
     description: "Is this a snapshot (pre-release) version?"
     type: boolean
@@ -50,10 +55,16 @@ runs:
         distribution: corretto
         java-version: 11
         cache: sbt
-    - name: Get version to publish as
+    - name: Use supplied version
+      if: ${{ inputs.version != '' }}
       shell: bash
       run: |
-        git describe --tags
+        echo "VERSION=${{ inputs.version }}" >> "$GITHUB_ENV"
+    - name: Get version to publish as
+      if: ${{ inputs.version == '' }}
+      shell: bash
+      run: |
+        git describe --tags --exact-match HEAD || exit 1
         VERSION=$(git describe --tags | cut -f2 -d"@")
         if [[ ${VERSION:0:1} == "v" ]] ; then
           VERSION=${VERSION:1}
@@ -86,5 +97,3 @@ runs:
         PGP_PASSPHRASE: ${{ inputs.pgpPassphrase }}
         SONATYPE_USERNAME: ${{ inputs.sonatypeUsername }}
         SONATYPE_PASSWORD: ${{ inputs.sonatypePassword }}
-
-
