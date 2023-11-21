@@ -29,20 +29,6 @@ inputs:
     default: ''
     required: false
 
-  # domain:
-  #   description: A Guardian-owned domain. [name].gutools.co.uk is recommended.
-  #   required: true
-  # artifact:
-  #   description: 'Name of artifact containing the static site. Should be uploaded in an earlier workflow step.'
-  #   required: false
-  #   default: 'artifact'
-  # guActionsRiffRaffRoleArn:
-  #   description: "Role to use for writing to Riffraff's AWS bucket (typically org secret of same name)."
-  #   required: true
-  # dryRun:
-  #   description: 'If set to true, will not upload Riffraff artifact.'
-  #   default: false
-
 runs:
   using: 'composite'
   steps:
