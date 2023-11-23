@@ -11,7 +11,8 @@ gpg --export-secret-keys <key-id> | base64
 ```
 
 By default, this action will generate a snapshot release. To generate
-a non snapshot, production release, set `isSnapshot` to `false`.
+a non snapshot, production release, set `isSnapshot` to `false` (see 
+the example below for how to do this automatically from a release).
 
 While running SBT release, this action sets the system property
 `RELEASE_TYPE` to either `snapshot` or `production`, depending on the
