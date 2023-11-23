@@ -38,7 +38,7 @@ jobs:
   sbt_release:
     runs-on: ubuntu-latest
     steps:
-      - uses: guardian/actions-sbt-release@v1
+      - uses: guardian/actions-sbt-release@v3
         with:
           pgpSecret: ${{ secrets.PGP_SECRET }}
           pgpPassphrase: ${{ secrets.PGP_PASSPHRASE }}
