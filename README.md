@@ -1,4 +1,14 @@
-# GitHub Action to run SBT release
+## This Action is deprecated, see [`gha-scala-library-release-workflow`](https://github.com/guardian/gha-scala-library-release-workflow)
+
+[**`gha-scala-library-release-workflow`**](https://github.com/guardian/gha-scala-library-release-workflow)
+is the recommended alternative to `guardian/actions-sbt-release`.
+
+As a [reusable workflow](https://docs.github.com/en/actions/using-workflows/reusing-workflows#overview),
+rather than a GitHub Action, it's able to isolate release phases in
+[jobs](https://docs.github.com/en/actions/using-jobs/using-jobs-in-a-workflow),
+providing better [release credential security](https://github.com/guardian/gha-scala-library-release-workflow/blob/main/docs/security-design.md).
+
+#### GitHub Action to run SBT release
 
 Use this to run SBT release process.
 
